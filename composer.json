@@ -2,10 +2,13 @@
     "name": "a2htray/cp-date-fns",
     "description": "copy of javascript lib 'date-fns'",
     "type": "library",
+    "homepage": "https://github.com/a2htray/cp-date-fns",
+    "license": "MIT",
     "authors": [
         {
             "name": "a2htray",
-            "email": "a2htray.yuen@gmail.com"
+            "email": "a2htray.yuen@gmail.com",
+            "role": "Developer"
         }
     ],
     "minimum-stability": "dev",
