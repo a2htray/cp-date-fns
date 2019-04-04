@@ -5,25 +5,78 @@ use PHPUnit\Framework\TestCase;
 use A2htray\DateFNS\Utils;
 
 class UtilsTest extends TestCase {
-    /**
-     * @return DateTime
-     */
+    public function testAddYears() {
+        $dateTime = new DateTime('2019-04-10');
+        $actualDateTime = Utils::addYears($dateTime, 8);
+        $this->assertSame('2027-04-10', $actualDateTime->format('Y-m-d'));
+    }
+
+    public function testAddQuarters() {
+        $dateTime = new DateTime('2019-04-10');
+        $actualDateTime = Utils::addQuarters($dateTime, 1);
+        $this->assertSame('2019-07-10', $actualDateTime->format('Y-m-d'));
+
+        $actualDateTime = Utils::addQuarters($dateTime, 4);
+        $this->assertSame('2020-04-10', $actualDateTime->format('Y-m-d'));
+    }
+
+    public function testAddMonths() {
+        $dateTime = new DateTime('2019-04-10');
+        $actualDateTime = Utils::addMonths($dateTime, 8);
+        $this->assertSame('2019-12-10', $actualDateTime->format('Y-m-d'));
+
+        $actualDateTime = Utils::addMonths($dateTime, 12);
+        $this->assertSame('2020-04-10', $actualDateTime->format('Y-m-d'));
+    }
+
+    public function testAddWeeks() {
+        $dateTime = new DateTime('2019-04-10');
+        $this->assertSame('2019-04-17', Utils::addWeeks($dateTime, 1)->format('Y-m-d'));
+    }
+
     public function testAddDays() {
         $dateTime = new DateTime('2019-04-02');
         $actualDateTime = Utils::addDays($dateTime, 8);
         $this->assertSame('2019-04-10', $actualDateTime->format('Y-m-d'));
-
-        return $actualDateTime;
     }
 
     /**
      * @param DateTime
-     * @depends testAddDays
      */
-    public function testAddHours(DateTime $dateTime) {
+    public function testAddHours() {
+        $dateTime = new DateTime('2019-04-10');
         // 加上 8 个小时
         $actualDateTime = Utils::addHours($dateTime, 8);
         $this->assertSame('2019-04-10 08', $actualDateTime->format('Y-m-d H'));
+    }
+
+    public function testAddMinutes() {
+        $dateTime = new DateTime('2019-04-10');
+        $actualDateTime = Utils::addMinutes($dateTime, 8);
+        $this->assertSame('2019-04-10 08', $actualDateTime->format('Y-m-d i'));
+    }
+
+    public function testAddSeconds() {
+        $dateTime = new DateTime('2019-04-10');
+        $actualDateTime = Utils::addSeconds($dateTime, 8);
+        $this->assertSame('2019-04-10 08', $actualDateTime->format('Y-m-d s'));
+    }
+
+//    public function testAddMilliseconds() {
+//        $dateTime = new DateTime('2019-04-10 23:53:53.999991');
+//        $actualDateTime = Utils::addMilliseconds($dateTime, 8);
+//        $this->assertSame('2019-04-10 23:53.53.999999', $actualDateTime->format('Y-m-d H:i:s.u'));
+//    }
+
+    public function testCloseIndexTo() {
+        $dateTime = new DateTime('2019-04-04');
+        $dirtyDateArray = [
+            new DateTime('2019-05-04'),
+            new DateTime('2019-04-05'),
+            new DateTime('2018-04-04'),
+            new DateTime('2020-04-04'),
+        ];
+        $this->assertSame(1, Utils::closeIndexTo($dateTime, $dirtyDateArray));
     }
 
     public function testIsWhichDayInWeek() {

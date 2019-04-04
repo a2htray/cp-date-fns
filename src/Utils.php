@@ -17,6 +17,27 @@ class Utils
 
     const UNIX_STAMP = 999999;
 
+    public static function addYears(DateTime $dateTime, int $dirtyAmount) : DateTime {
+        $clone = clone $dateTime;
+        $clone->add(new DateInterval('P' . $dirtyAmount . 'Y'));
+        return $clone;
+    }
+
+    public static function addQuarters(DateTime $dateTime, int $dirtyAmount) : DateTime {
+        $ret = self::addMonths($dateTime, $dirtyAmount * 3);
+        return $ret;
+    }
+
+    public static function addMonths(DateTime $dateTime, int $dirtyAmount) : DateTime {
+        $clone = clone $dateTime;
+        $clone->add(new DateInterval('P' . $dirtyAmount . 'M'));
+        return $clone;
+    }
+
+    public static function addWeeks(DateTime $dateTime, int $dirtyAmount) : DateTime {
+        return self::addDays($dateTime, $dirtyAmount * 7);
+    }
+
     public static function addDays(DateTime $dateTime, int $dirtyAmount) : DateTime {
         $clone = clone $dateTime;
         $clone->add(new DateInterval('P' . $dirtyAmount . 'D'));
@@ -29,15 +50,65 @@ class Utils
         return $clone;
     }
 
-    /**
-     * 返回一天最开始的时间
-     * @param DateTime $dateTime
-     * @return DateTime
-     */
-    public static function startOfDay(DateTime $dateTime) : DateTime {
+    public static function addMinutes(DateTime $dateTime, int $dirtyAmount) : DateTime {
         $clone = clone $dateTime;
-        $clone->setTime(0, 0, 0, 0);
+        $clone->add(new DateInterval('PT' . $dirtyAmount . 'M'));
         return $clone;
+    }
+
+    public static function addSeconds(DateTime $dateTime, int $dirtyAmount) : DateTime {
+        $clone = clone $dateTime;
+        $clone->add(new DateInterval('PT' . $dirtyAmount . 'S'));
+        return $clone;
+    }
+
+    public static function addMilliseconds(DateTime $dateTime, int $dirtyAmount) : DateTime {
+        // TODO need to modify, it is error
+        $base = (int)$dateTime->format('u');
+        $seconds = (int)(($base + $dirtyAmount) / self::UNIX_STAMP);
+        $mod = ($base + $dirtyAmount) % self::UNIX_STAMP - 1;
+        $dt = self::addSeconds($dateTime, $seconds);
+        $dt->setTime((int)$dt->format('H'), (int)$dt->format('i'), (int)$dt->format('s'), $mod);
+        return $dt;
+    }
+
+    public static function closeIndexTo(DateTime $dateTime, array $dirtyDateArray) : int {
+        $len = count($dirtyDateArray);
+        $base = self::getMilliseconds($dateTime);
+        $index = 0;
+        $minDistance = abs($base - self::getMilliseconds($dirtyDateArray[0]));
+
+        for ($i = 1; $i < $len; $i++) {
+            $distance = abs($base - self::getMilliseconds($dirtyDateArray[$i]));
+            if ($distance < $minDistance) {
+                $index = $i;
+                $minDistance = $distance;
+            }
+        }
+
+        return $index;
+    }
+
+    public static function compareAsc(DateTime $dateTimeLeft, DateTime $dateTimeRight) : int {
+        $offset = self::getMilliseconds($dateTimeLeft) - self::getMilliseconds($dateTimeRight);
+        if ($offset > 0) {
+            return 1;
+        } elseif ($offset < 0) {
+            return -1;
+        } else {
+            return 0;
+        }
+    }
+
+    public static function compareDesc(DateTime $dateTimeLeft, DateTime $dateTimeRight) : int {
+        $offset = self::getMilliseconds($dateTimeLeft) - self::getMilliseconds($dateTimeRight);
+        if ($offset < 0) {
+            return 1;
+        } elseif ($offset > 0) {
+            return -1;
+        } else {
+            return 0;
+        }
     }
 
     /**
@@ -52,6 +123,23 @@ class Utils
         $startOfDateRight = self::startOfDay($dateTimeRight);
         return (int)(($startOfDateLeft->getTimestamp() - $startOfDateRight->getTimestamp()) / self::SECONDS_IN_DAY);
     }
+
+    public static function getMilliseconds(DateTime $dateTime) : int {
+        return (int)($dateTime->getTimestamp() * 1000 + (int)$dateTime->format('u'));
+    }
+
+    /**
+     * 返回一天最开始的时间
+     * @param DateTime $dateTime
+     * @return DateTime
+     */
+    public static function startOfDay(DateTime $dateTime) : DateTime {
+        $clone = clone $dateTime;
+        $clone->setTime(0, 0, 0, 0);
+        return $clone;
+    }
+
+
 
     public static function differenceInCalendarMonths(DateTime $dateTimeLeft, DateTime $dateTimeRight) : int {
         $yearAndMonthLeft = array_map('intval', explode('-', $dateTimeLeft->format('Y-m')));
