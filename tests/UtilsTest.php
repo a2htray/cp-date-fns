@@ -79,6 +79,33 @@ class UtilsTest extends TestCase {
         $this->assertSame(1, Utils::closeIndexTo($dateTime, $dirtyDateArray));
     }
 
+    public function testDifferenceInCalendarQuarters() {
+        $dateTimeLeft = new DateTime('2014-06-02');
+        $dateTimeRight = new DateTime('2013-11-31');
+        $this->assertSame(2, Utils::differenceInCalendarQuarters($dateTimeLeft, $dateTimeRight));
+    }
+
+    public function testDifferenceInCalendarYears() {
+        $dateTimeLeft = new DateTime('2014-06-02');
+        $dateTimeRight = new DateTime('2013-11-31');
+        $this->assertSame(1, Utils::differenceInCalendarYears($dateTimeLeft, $dateTimeRight));
+    }
+
+    public function testDifferenceInHours() {
+        $dateTimeLeft = new DateTime('2014-06-02 19:00');
+        $dateTimeRight = new DateTime('2014-06-02 06:50');
+        $this->assertSame(12, Utils::differenceInHours($dateTimeLeft, $dateTimeRight));
+
+        $dateTimeLeft = new DateTime('2014-06-03 19:00');
+        $dateTimeRight = new DateTime('2014-06-02 06:50');
+        $this->assertSame(36, Utils::differenceInHours($dateTimeLeft, $dateTimeRight));
+    }
+
+    public function testDifferenceInDays() {
+        $dateTimeLeft = new DateTime('2012-06-02');
+        $dateTimeRight = new DateTime('2011-06-02 23:59');
+        $this->assertSame(365, Utils::differenceInDays($dateTimeLeft, $dateTimeRight));
+    }
     public function testIsWhichDayInWeek() {
         $dt0 = new DateTime('2019-04-08');
         $dt1 = new DateTime('2019-04-09');

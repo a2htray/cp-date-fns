@@ -124,8 +124,41 @@ class Utils
         return (int)(($startOfDateLeft->getTimestamp() - $startOfDateRight->getTimestamp()) / self::SECONDS_IN_DAY);
     }
 
-    public static function getMilliseconds(DateTime $dateTime) : int {
-        return (int)($dateTime->getTimestamp() * 1000 + (int)$dateTime->format('u'));
+    public static function differenceInCalendarQuarters(DateTime $dateTimeLeft, DateTime $dateTimeRight) : int {
+        $offsetYears = (int)$dateTimeLeft->format('Y') - (int)$dateTimeRight->format('Y');
+        return $offsetYears * 4 + self::getQuarter($dateTimeLeft) - self::getQuarter($dateTimeRight);
+    }
+
+    public static function differenceInCalendarMonths(DateTime $dateTimeLeft, DateTime $dateTimeRight) : int {
+        $yearAndMonthLeft = array_map('intval', explode('-', $dateTimeLeft->format('Y-m')));
+        $yearAndMonthRight = array_map('intval', explode('-', $dateTimeRight->format('Y-m')));
+        return ($yearAndMonthLeft[0] - $yearAndMonthRight[0]) * 12 + $yearAndMonthLeft[1] - $yearAndMonthRight[1];
+    }
+
+    public static function differenceInCalendarYears(DateTime $dateTimeLeft, DateTime $dateTimeRight) : int {
+        return (int)($dateTimeLeft->format('Y')) - (int)($dateTimeRight->format('Y'));
+    }
+
+    public static function differenceInHours(DateTime $dateTimeLeft, DateTime $dateTimeRight) : int {
+        $dayOffset = self::differenceInCalendarDays($dateTimeLeft, $dateTimeRight);
+        $hourOffset = (int)($dateTimeLeft->format('H')) - (int)($dateTimeRight->format('H'));
+        return $dayOffset * 24 + $hourOffset - 1;
+    }
+
+    public static function differenceInDays(DateTime $dateTimeLeft, DateTime $dateTimeRight) : int {
+        $dateTimeMillisecondsLeft = self::getMilliseconds($dateTimeLeft);
+        $dateTimeMillisecondsRight = self::getMilliseconds($dateTimeRight);
+        $offset = ($dateTimeMillisecondsLeft - $dateTimeMillisecondsRight) / self::MILLISECONDS_IN_DAY;
+        return $offset > 0 ? floor($offset) : ceil($offset);
+    }
+
+    public static function getQuarter(DateTime $dateTime) : int {
+        $month = (int)$dateTime->format('m');
+        return (int)($month / 3 + 1);
+    }
+
+    public static function getMilliseconds(DateTime $dateTime) : float {
+        return $dateTime->getTimestamp() * 1000 + (int)($dateTime->format('u'));
     }
 
     /**
@@ -137,18 +170,6 @@ class Utils
         $clone = clone $dateTime;
         $clone->setTime(0, 0, 0, 0);
         return $clone;
-    }
-
-
-
-    public static function differenceInCalendarMonths(DateTime $dateTimeLeft, DateTime $dateTimeRight) : int {
-        $yearAndMonthLeft = array_map('intval', explode('-', $dateTimeLeft->format('Y-m')));
-        $yearAndMonthRight = array_map('intval', explode('-', $dateTimeRight->format('Y-m')));
-        return ($yearAndMonthLeft[0] - $yearAndMonthRight[0]) * 12 + $yearAndMonthLeft[1] - $yearAndMonthRight[1];
-    }
-
-    public static function differenceInCalendarQuarters(DateTime $dateTimeLeft, DateTime $dateTimeRight) : int {
-        return 0;
     }
 
     public static function setISOWeekYear(DateTime $dateTime, int $dirtyAmount) : DateTime {
